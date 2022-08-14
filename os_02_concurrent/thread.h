@@ -1,13 +1,17 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdatomic.h>
 #include <assert.h>
-#include <unistd.h>
 #include <pthread.h>
+#include <stdatomic.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define NTHREAD 64
-enum { T_FREE = 0, T_LIVE, T_DEAD, };
+enum {
+  T_FREE = 0,
+  T_LIVE,
+  T_DEAD,
+};
 struct thread {
   int id, status;
   pthread_t thread;
@@ -24,10 +28,14 @@ void *wrapper(void *arg) {
 
 void create(void *fn) {
   assert(tptr - tpool < NTHREAD);
-  *tptr = (struct thread) {
-    .id = tptr - tpool + 1,
-    .status = T_LIVE,
-    .entry = fn,
+  // pthread_attr_t attr;
+  // pthread_attr_init(&attr);
+  // int size = 8192 * 2 * 1024;
+  // pthread_attr_setstacksize(&attr, size);
+  *tptr = (struct thread){
+      .id = tptr - tpool + 1,
+      .status = T_LIVE,
+      .entry = fn,
   };
   pthread_create(&(tptr->thread), NULL, wrapper, tptr);
   ++tptr;
@@ -43,6 +51,4 @@ void join() {
   }
 }
 
-__attribute__((destructor)) void cleanup() {
-  join();
-}
+__attribute__((destructor)) void cleanup() { join(); }
