@@ -16,7 +16,7 @@ void printL() {
   while (1) {
     mutex_lock(&lk);
     while (s == LEFT || n == 3) {
-      cond_wait(&cv, &lk);
+      pthread_cond_wait(&cv, &lk);
     }
     printf("<");
     s = LEFT;
